@@ -1,0 +1,60 @@
+version: 2
+
+defaults: &defaults
+  working_directory: /usr/local/src/pathogen
+  docker:
+    - image: golang:1.13.7-alpine3.10
+
+jobs:
+  vendor:
+    <<: *defaults
+    steps:
+      - run: apk add --no-cache ca-certificates git make openssh
+      - run: mkdir -p ~/.ssh && ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+      - checkout
+      - restore_cache:
+          keys:
+            - cache-{{ .Branch }}-{{ .Revision }}
+            - cache-{{ .Branch }}
+            - cache
+      - run: make vendor
+      - save_cache:
+          key: cache-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - vendor
+      - persist_to_workspace:
+          root: /usr/local/src/pathogen
+          paths:
+            - vendor
+  test:
+    <<: *defaults
+    steps:
+      - run: apk add --no-cache ca-certificates curl git make openssh
+      - run: mkdir -p ~/.ssh && ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+      - checkout
+      - attach_workspace:
+          at: /usr/local/src/pathogen
+      - run: curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > /usr/local/bin/cc-test-reporter && chmod +x /usr/local/bin/cc-test-reporter
+      - run: cc-test-reporter before-build
+      - run: make test
+      - run: cc-test-reporter format-coverage -t gocov --prefix github.com/galaho/pathogen/ ./coverage/c.out
+      - run: cc-test-reporter upload-coverage
+
+workflows:
+  version: 2
+  default:
+    jobs:
+      - vendor:
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: /.*/
+      - test:
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: /.*/
+          requires:
+            - vendor
