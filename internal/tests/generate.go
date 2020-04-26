@@ -17,6 +17,7 @@
 package tests
 
 import (
+	"encoding/hex"
 	"math/rand"
 	"reflect"
 	"testing"
@@ -36,6 +37,16 @@ func MustGenerate(tipe reflect.Type, test *testing.T) reflect.Value {
 		test.Errorf("unable to generate random value of type [%s]", tipe)
 	}
 	return value
+}
+
+// MustGenerateBytes generates a random by slice or fails a test.
+func MustGenerateBytes(test *testing.T) []byte {
+	return MustGenerate(reflect.TypeOf([]byte{}), test).Interface().([]byte)
+}
+
+// MustGenerateHex generates a random hexadecimal string or fails a test.
+func MustGenerateHex(test *testing.T) string {
+	return hex.EncodeToString(MustGenerateBytes(test))
 }
 
 // MustGenerateString generates a random string or fails a test.
