@@ -1,12 +1,12 @@
-Ignore:
+ignore:
   - \.pathogen\.yml
-Variables:
-  - Name: name
-    Description: your name
-    Value: Galahad
-  - Name: color
-    Description: your favorite color
-    Value: Blue
-  - Name: quest
-    Description: your quest
-    Value: the holy grail
+variables:
+  - name: name
+    description: your name
+    value: Galahad
+  - name: color
+    description: your favorite color
+    value: Blue
+  - name: quest
+    description: your quest
+    value: the holy grail
