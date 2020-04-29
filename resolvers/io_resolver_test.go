@@ -18,11 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package variables
+package resolvers
 
 import (
 	"strings"
 	"testing"
+
+	"github.com/galaho/pathogen/repositories"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -39,7 +41,7 @@ func TestFileResolver(t *testing.T) {
 				writer := &strings.Builder{}
 				resolver := NewIOResolver(reader, writer)
 
-				variables := []Variable{}
+				variables := []repositories.Variable{}
 				expected := map[string]string{}
 				actual, err := resolver.Resolve(variables)
 
@@ -58,18 +60,18 @@ func TestFileResolver(t *testing.T) {
 				writer := &strings.Builder{}
 				resolver := NewIOResolver(reader, writer)
 
-				variables := []Variable{
-					Variable{
+				variables := []repositories.Variable{
+					repositories.Variable{
 						Name:        "name",
 						Description: "your name",
 						Value:       "",
 					},
-					Variable{
+					repositories.Variable{
 						Name:        "quest",
 						Description: "your quest",
 						Value:       "",
 					},
-					Variable{
+					repositories.Variable{
 						Name:        "color",
 						Description: "your favorite colour",
 						Value:       "",

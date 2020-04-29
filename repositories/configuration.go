@@ -18,17 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package variables
+package repositories
 
-// Variable represents a variable for substitution in a template.
-type Variable struct {
+// Configuration represents the configuration for a repository.
+type Configuration struct {
 
-	// Name defines the name of the variable.
-	Name string `json:"name" mapstructure:"name" yaml:"name"`
+	// Ignore defines regular expressions for the files to ignore.
+	Ignore []string `yaml:"ignore"`
 
-	// Description defines the description the variable.
-	Description string `json:"description" mapstructure:"description" yaml:"description"`
-
-	// Value defines the value of the variable.
-	Value string `json:"value" mapstructure:"value" yaml:"value"`
+	// Variable defines the variables required by the templates.
+	Variables []Variable `yaml:"variables"`
 }
