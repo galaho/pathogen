@@ -1,4 +1,4 @@
-// Copyright (c) { now "2006" } { variable "author" }
+// Copyright (c) {{ now "2006" }} {{ variable "author" }}
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,5 +26,5 @@ import (
 )
 
 func main() {
-	fmt.Println("Hello, my name is { variable "first" } { variable "last" }!")
+	fmt.Println("Hello, my name is {{ variable "first" }} {{ variable "last" }}!")
 }
