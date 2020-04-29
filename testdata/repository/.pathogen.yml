@@ -1,5 +1,5 @@
 Ignore:
-  - .pathogen.yml
+  - \.pathogen\.yml
 Variables:
   - Name: name
     Description: your name
