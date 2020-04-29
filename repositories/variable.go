@@ -18,25 +18,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package cmd
+package repositories
 
-import (
-	"github.com/galaho/pathogen/cmd/generate"
-	"github.com/galaho/pathogen/cmd/version"
-	"github.com/spf13/cobra"
-)
+// Variable represents a variable for substitution in a template.
+type Variable struct {
 
-// Pathogen returns a command that generates filesystem entries from templates.
-func Pathogen() *cobra.Command {
+	// Name defines the name of the variable.
+	Name string `json:"name" mapstructure:"name" yaml:"name"`
 
-	command := &cobra.Command{
-		Use:   "pathogen",
-		Short: "Generate filesystem entries from templates",
-		Long:  "A command line utility for generating filesystem entries from templates.",
-	}
+	// Description defines the description the variable.
+	Description string `json:"description" mapstructure:"description" yaml:"description"`
 
-	command.AddCommand(generate.Command())
-	command.AddCommand(version.Command())
-
-	return command
+	// Value defines the value of the variable.
+	Value string `json:"value" mapstructure:"value" yaml:"value"`
 }

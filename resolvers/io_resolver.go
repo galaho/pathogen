@@ -18,13 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package variables
+package resolvers
 
 import (
 	"bufio"
 	"fmt"
 	"io"
 
+	"github.com/galaho/pathogen/repositories"
 	"github.com/pkg/errors"
 )
 
@@ -43,7 +44,7 @@ func NewIOResolver(reader io.Reader, writer io.Writer) *IOResolver {
 }
 
 // Resolve resolves variables.
-func (r *IOResolver) Resolve(variables []Variable) (map[string]string, error) {
+func (r *IOResolver) Resolve(variables []repositories.Variable) (map[string]string, error) {
 
 	scanner := bufio.NewScanner(r.reader)
 	resolved := make(map[string]string)

@@ -18,11 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package variables
+package resolvers
+
+import (
+	"github.com/galaho/pathogen/repositories"
+)
 
 // Resolver provides an interface for resolving variables.
 type Resolver interface {
 
 	// Resolve resolves variables.
-	Resolve([]Variable) map[string]string
+	Resolve([]repositories.Variable) map[string]string
 }

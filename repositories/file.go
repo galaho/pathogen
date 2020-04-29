@@ -18,25 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package cmd
+package repositories
 
 import (
-	"github.com/galaho/pathogen/cmd/generate"
-	"github.com/galaho/pathogen/cmd/version"
-	"github.com/spf13/cobra"
+	"os"
 )
 
-// Pathogen returns a command that generates filesystem entries from templates.
-func Pathogen() *cobra.Command {
+// File represents a file from a repository.
+type File struct {
 
-	command := &cobra.Command{
-		Use:   "pathogen",
-		Short: "Generate filesystem entries from templates",
-		Long:  "A command line utility for generating filesystem entries from templates.",
-	}
+	// Bytes defines the content of the file.
+	Bytes []byte
 
-	command.AddCommand(generate.Command())
-	command.AddCommand(version.Command())
+	// Info defines the info of the file.
+	Info os.FileInfo
 
-	return command
+	// Path defines the relative path of the file.
+	Path string
 }
