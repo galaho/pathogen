@@ -28,6 +28,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"time"
 
 	"gopkg.in/yaml.v2"
 	"github.com/hashicorp/go-getter"
@@ -162,6 +163,6 @@ func matches(value string, regexes []*regexp.Regexp) bool {
 // random returns a random hexidecimal string.
 func random() string {
 	bytes := make([]byte, 16)
-	rand.Read(bytes)
+	rand.New(rand.NewSource(time.Now().Unix())).Read(bytes)
 	return hex.EncodeToString(bytes)
 }
