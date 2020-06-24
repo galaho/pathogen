@@ -83,11 +83,16 @@ func Open(path string) (*Repository, error) {
 // Walk invokes a callback for every file within the repository.
 func (r *Repository) Walk(callback func(*File) error) error {
 
-	err := filepath.Walk(r.directory, func(absolute string, info os.FileInfo, err error) error {
+	evaluated, err := filepath.EvalSymlinks(r.directory)
+	if err != nil {
+		return errors.Wrapf(err, "error evaluating symlinks [%s]", r.directory)
+	}
 
-		relative, err := filepath.Rel(r.directory, absolute)
+	err = filepath.Walk(evaluated, func(absolute string, info os.FileInfo, err error) error {
+
+		relative, err := filepath.Rel(evaluated, absolute)
 		if err != nil {
-			return errors.Wrapf(err, "error determining relative path from [%s] to [%s]", r.directory, absolute)
+			return errors.Wrapf(err, "error determining relative path from [%s] to [%s]", evaluated, absolute)
 		}
 
 		if info.Mode().IsRegular() && !matches(relative, r.ignore) {
