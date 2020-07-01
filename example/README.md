@@ -4,7 +4,7 @@ This directory contains an example pathogen repository that demonstrates all fun
 ## Usage
 To execute the templates in this repository run the following command:
 
-    pathogen generate git@github.com:galaho/pathogen.git//examples ./examples
+    pathogen generate git@github.com:galaho/pathogen.git//example ./example
 
-The output of this generation will be in the `./examples` directory.
+The output of this generation will be in the `./example` directory.
 
