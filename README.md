@@ -6,6 +6,9 @@
 
 Pathogen provides a generic templated filesystem entry generator. While written in Go and using Go template syntax, pathogen is completely agnostic with regard to the type and format of the generated filesystem entries.
 
+## Usage
+An example pathogen template repository and usage is provided [here](https://github.com/galaho/pathogen/tree/master/example).
+
 ## Contributing
 
 1. Fork this repository into your GitHub account.
