@@ -154,7 +154,9 @@ func load(path string) (Configuration, error) {
 func matches(value string, regexes []*regexp.Regexp) bool {
 
 	for _, regex := range regexes {
-		return regex.MatchString(value)
+		if regex.MatchString(value) {
+			return true
+		}
 	}
 
 	return false
