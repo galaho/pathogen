@@ -1,0 +1,10 @@
+firstName: {{ variable "firstName" }}
+lastName: {{ variable "lastName" }}
+{{- if variable "partners" }}
+partners:
+{{- range variable "partners" | split "," }}
+  - {{ . }}
+{{- end }}
+{{- else }}
+partners: []
+{{- end }}
