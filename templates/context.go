@@ -22,6 +22,7 @@ package templates
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -35,8 +36,18 @@ type Context struct {
 // Functions returns the function map for the context.
 func (c *Context) Functions() map[string]interface{} {
 	return map[string]interface{}{
+		"lower":    lower(),
 		"now":      now(),
+		"split":    split(),
+		"upper":    upper(),
 		"variable": variable(c.Variables),
+	}
+}
+
+// lower returns a function that returns the result of calling strings.ToLower on a string.
+func lower() func(string) string {
+	return func(value string) string {
+		return strings.ToLower(value)
 	}
 }
 
@@ -48,6 +59,13 @@ func now() func(string) string {
 	}
 }
 
+// split returns a function that returns the slice produced by calling strings.Split on a string.
+func split() func(string, string) []string {
+	return func(delimiter string, value string) []string {
+		return strings.Split(value, delimiter)
+	}
+}
+
 // variable returns a function that returns a variable from a map.
 func variable(variables map[string]string) func(string) (string, error) {
 	return func(name string) (string, error) {
@@ -56,5 +74,12 @@ func variable(variables map[string]string) func(string) (string, error) {
 			return "", fmt.Errorf("error fetching variable with name [%s]", name)
 		}
 		return value, nil
+	}
+}
+
+// upper returns a function that returns the result of calling strings.ToUpper on a string.
+func upper() func(string) string {
+	return func(value string) string {
+		return strings.ToUpper(value)
 	}
 }
