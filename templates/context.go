@@ -22,6 +22,7 @@ package templates
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"time"
 )
@@ -36,11 +37,19 @@ type Context struct {
 // Functions returns the function map for the context.
 func (c *Context) Functions() map[string]interface{} {
 	return map[string]interface{}{
-		"lower":    lower(),
-		"now":      now(),
-		"split":    split(),
-		"upper":    upper(),
-		"variable": variable(c.Variables),
+		"environment": environment(),
+		"lower":       lower(),
+		"now":         now(),
+		"split":       split(),
+		"upper":       upper(),
+		"variable":    variable(c.Variables),
+	}
+}
+
+// environment returns a function that returns the value of an environment variable.
+func environment() func(string) string {
+	return func(name string) string {
+		return os.Getenv(name)
 	}
 }
 

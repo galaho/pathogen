@@ -21,6 +21,7 @@
 package templates
 
 import (
+	"os"
 	"testing"
 	"time"
 
@@ -46,6 +47,26 @@ func TestContext(t *testing.T) {
 			functions := context.Functions()
 
 			Convey("it returns a map that contains", func() {
+
+				Convey("an environment function", func() {
+
+					function, exists := functions["environment"].(func(string) string)
+
+					name := tests.MustGenerateHex(t)
+					value := tests.MustGenerateHex(t)
+
+					os.Setenv(name, value)
+
+					So(exists, ShouldBeTrue)
+
+					Convey("that returns an empty string when invoked for an unset environment variable", func() {
+						So(function(tests.MustGenerateHex(t)), ShouldBeEmpty)
+					})
+
+					Convey("that returns value when invoked for a set environment variable", func() {
+						So(function(name), ShouldEqual, value)
+					})
+				})
 
 				Convey("a now function", func() {
 
