@@ -8,3 +8,11 @@ partners:
 {{- else }}
 partners: []
 {{- end }}
+{{- if environment "EPISODES" }}
+episodes:
+{{- range environment "EPISODES" | split "," }}
+  - {{ . }}
+{{- end }}
+{{- else }}
+episodes: []
+{{- end }}
