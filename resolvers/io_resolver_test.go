@@ -29,9 +29,9 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestFileResolver(t *testing.T) {
+func TestIOResolver(t *testing.T) {
 
-	Convey("When FileResolver", t, func() {
+	Convey("When IOResolver", t, func() {
 
 		Convey(".Resolve is invoked", func() {
 

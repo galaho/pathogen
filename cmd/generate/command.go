@@ -38,7 +38,7 @@ func Command() *cobra.Command {
 	command := &cobra.Command{
 		Use:   "generate REPOSITORY DESTINATION",
 		Short: "Generate filesystem entries from a template",
-    	RunE: func(command *cobra.Command, args []string) error {
+		RunE: func(command *cobra.Command, args []string) error {
 
 			repository, err := repositories.Fetch(args[0])
 			if err != nil {
@@ -47,7 +47,18 @@ func Command() *cobra.Command {
 
 			defer repository.Close()
 
-			resolver := resolvers.NewIOResolver(os.Stdin, os.Stdout)
+			input, err := command.Flags().GetString("input")
+			if err != nil {
+				return errors.Wrap(err, "error determining input file")
+			}
+
+			var resolver resolvers.Resolver
+
+			resolver = resolvers.NewIOResolver(os.Stdin, os.Stdout)
+
+			if input != "" {
+				resolver = resolvers.NewFileResolver(input)
+			}
 
 			variables, err := resolver.Resolve(repository.Variables)
 			if err != nil {
@@ -90,6 +101,8 @@ func Command() *cobra.Command {
 			return nil
 		},
 	}
+
+	command.Flags().StringP("input", "i", "", "file for non-interactive variable resolution")
 
 	return command
 }

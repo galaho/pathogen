@@ -21,12 +21,51 @@
 package resolvers
 
 import (
+	"io/ioutil"
+
 	"github.com/galaho/pathogen/repositories"
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 )
 
-// Resolver provides an interface for resolving variables.
-type Resolver interface {
+// FileResolver implements a variable resolver that resolves using a yaml file containg key and value pairs.
+type FileResolver struct {
+	path string
+}
 
-	// Resolve resolves variables.
-	Resolve([]repositories.Variable) (map[string]string, error)
+// NewFileResolver returns a new instance of a FileResolver.
+func NewFileResolver(path string) *FileResolver {
+	return &FileResolver{
+		path: path,
+	}
+}
+
+// Resolve resolves variables.
+func (r *FileResolver) Resolve(variables []repositories.Variable) (map[string]string, error) {
+
+	var unmarshalled map[string]string
+
+	bytes, err := ioutil.ReadFile(r.path)
+	if err != nil {
+		return nil, errors.Wrap(err, "error reading variable file")
+	}
+
+	err = yaml.Unmarshal(bytes, &unmarshalled)
+	if err != nil {
+		return nil, errors.Wrap(err, "error unmarshalling variable file")
+	}
+
+	resolved := make(map[string]string)
+
+	for _, variable := range variables {
+
+		value, exists := unmarshalled[variable.Name]
+		if !exists {
+			value = variable.Value
+		}
+
+		resolved[variable.Name] = value
+	}
+
+	return resolved, nil
 }
