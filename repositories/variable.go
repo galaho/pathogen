@@ -31,4 +31,7 @@ type Variable struct {
 
 	// Value defines the value of the variable.
 	Value string `json:"value" mapstructure:"value" yaml:"value"`
+
+	// Pattern defines a regex pattern for valid values.
+	Pattern string `json:"pattern" mapstructure:"pattern" yaml:"pattern"`
 }

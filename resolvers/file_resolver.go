@@ -21,7 +21,9 @@
 package resolvers
 
 import (
+	"fmt"
 	"io/ioutil"
+	"regexp"
 
 	"github.com/galaho/pathogen/repositories"
 	"github.com/pkg/errors"
@@ -62,6 +64,18 @@ func (r *FileResolver) Resolve(variables []repositories.Variable) (map[string]st
 		value, exists := unmarshalled[variable.Name]
 		if !exists {
 			value = variable.Value
+		}
+
+		if variable.Pattern != "" {
+
+			match, err := regexp.MatchString(variable.Pattern, value)
+			if err != nil {
+				return nil, errors.Wrap(err, "error compiling variable pattern")
+			}
+
+			if !match {
+				return nil, fmt.Errorf("value [%s] does not match pattern [%s]", value, variable.Pattern)
+			}
 		}
 
 		resolved[variable.Name] = value

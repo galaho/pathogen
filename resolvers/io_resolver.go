@@ -24,6 +24,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"regexp"
 
 	"github.com/galaho/pathogen/repositories"
 	"github.com/pkg/errors"
@@ -51,23 +52,46 @@ func (r *IOResolver) Resolve(variables []repositories.Variable) (map[string]stri
 
 	for _, variable := range variables {
 
-		prompt := fmt.Sprintf("Enter %s [%s]: ", variable.Description, variable.Value)
+		resolved[variable.Name] = variable.Value
 
-		_, err := r.writer.Write([]byte(prompt))
-		if err != nil {
-			return nil, errors.Wrapf(err, "error requesting value for variable [%s]", variable.Name)
-		}
+		for {
 
-		scanner.Scan()
+			prompt := fmt.Sprintf("Enter %s [%s](%s): ", variable.Description, variable.Value, variable.Pattern)
 
-		if scanner.Err() != nil {
-			return nil, errors.Wrapf(err, "error reading value for variable [%s]", variable.Name)
-		}
+			_, err := r.writer.Write([]byte(prompt))
+			if err != nil {
+				return nil, errors.Wrapf(err, "error requesting value for variable [%s]", variable.Name)
+			}
 
-		if scanner.Text() == "" {
-			resolved[variable.Name] = variable.Value
-		} else {
+			scanner.Scan()
+
+			if scanner.Err() != nil {
+				return nil, errors.Wrapf(err, "error reading value for variable [%s]", variable.Name)
+			}
+
+			if scanner.Text() == "" {
+				break
+			}
+
 			resolved[variable.Name] = scanner.Text()
+
+			if variable.Pattern == "" {
+				break
+			}
+
+			match, err := regexp.MatchString(variable.Pattern, resolved[variable.Name])
+			if err != nil {
+				return nil, errors.Wrap(err, "error compiling variable pattern")
+			}
+
+			if match {
+				break
+			}
+
+			_, err = r.writer.Write([]byte("Variable does not match expected pattern.\n"))
+			if err != nil {
+				return nil, errors.Wrapf(err, "error requesting value for variable [%s]", variable.Name)
+			}
 		}
 	}
 
