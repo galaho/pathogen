@@ -1,14 +1,16 @@
 ignore:
-  - 'input.yaml$'
+  - "input.yaml$"
   - 'README\.md$'
   - '\.pathogen\.yml$'
 variables:
   - name: firstName
     description: the first name of a person
     value: Moe
+    pattern: ^[A-Z].*$
   - name: lastName
     description: the last name of a person
     value: Howard
+    pattern: ^[A-Z].*$
   - name: partners
-    description: a comma separated list of partners for the person 
+    description: a comma separated list of partners for the person
     value: Larry Fine,Curly Howard
