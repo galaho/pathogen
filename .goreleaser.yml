@@ -3,24 +3,20 @@ before:
     - go mod download
     - go generate ./...
 builds:
-- env:
-  - CGO_ENABLED=0
-- goos:
-  - darwin
-  - linux
-  - windows
-- goarch:
-  - amd64
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
 archives:
-- replacements:
-    amd64: x86_64
+  - replacements:
+      amd64: x86_64
 checksum:
   name_template: 'checksums.txt'
-snapshot:
-  name_template: "{{ .Tag }}-next"
 changelog:
   sort: asc
-  filters:
-    exclude:
-    - '^docs:'
-    - '^test:'
+snapshot:
+  name_template: '{{ .Tag }}-SNAPSHOT'
