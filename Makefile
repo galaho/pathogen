@@ -1,4 +1,5 @@
 VERSIONS_PACKAGE := github.com/galaho/pathogen/versions
+ROOT := $(shell git rev-parse --show-toplevel)
 
 COMMIT := $(shell git rev-parse --verify --short HEAD 2> /dev/null || echo "UNKNOWN")
 COMMIT_FLAG := -X $(VERSIONS_PACKAGE).commit=$(COMMIT)
@@ -35,3 +36,8 @@ test: vendor
 vendor:
 	@echo "--> Vendoring dependencies..."
 	@CGO_ENABLED=0 go mod vendor
+
+.PHONY: ci
+ci:
+	@echo "--> Testing the CI..."
+	@docker run --rm -v $(ROOT):/go/src/github.com/galaho/pathogen -w /go/src/github.com/galaho/pathogen goreleaser/goreleaser release --snapshot
