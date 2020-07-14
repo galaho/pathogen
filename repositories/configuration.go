@@ -26,6 +26,9 @@ type Configuration struct {
 	// Ignore defines regular expressions for the files to ignore.
 	Ignore []string `yaml:"ignore"`
 
+	// Scripts defines custom scripts for the templates.
+	Scripts map[string]string `yaml:"scripts"`
+
 	// Variable defines the variables required by the templates.
 	Variables []Variable `yaml:"variables"`
 }

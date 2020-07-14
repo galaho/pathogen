@@ -14,3 +14,6 @@ variables:
   - name: partners
     description: a comma separated list of partners for the person
     value: Larry Fine,Curly Howard
+scripts:
+  sort: |-
+    args[0].sort();

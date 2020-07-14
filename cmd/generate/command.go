@@ -65,7 +65,7 @@ func Command() *cobra.Command {
 				return errors.Wrap(err, "error resolving variables")
 			}
 
-			context := &templates.Context{Variables: variables}
+			context := &templates.Context{Scripts: repository.Scripts, Variables: variables}
 
 			err = repository.Walk(func(file *repositories.File) error {
 
