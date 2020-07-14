@@ -25,10 +25,16 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/dop251/goja"
+	"github.com/pkg/errors"
 )
 
 // Context represents a context.
 type Context struct {
+
+	// Scripts define the custom scripts for the context.
+	Scripts map[string]string
 
 	// Variables define the variables for the context.
 	Variables map[string]string
@@ -36,13 +42,30 @@ type Context struct {
 
 // Functions returns the function map for the context.
 func (c *Context) Functions() map[string]interface{} {
-	return map[string]interface{}{
+	functions := map[string]interface{}{
 		"environment": environment(),
 		"lower":       lower(),
 		"now":         now(),
 		"split":       split(),
 		"upper":       upper(),
 		"variable":    variable(c.Variables),
+	}
+	for name, content := range c.Scripts {
+		functions[name] = script(name, content)
+	}
+	return functions
+}
+
+// script returns a function that returns the value of a custom script.
+func script(name string, content string) interface{} {
+	return func(args ...interface{}) (interface{}, error) {
+		machine := goja.New()
+		machine.Set("args", args)
+		value, err := machine.RunScript(name, content)
+		if err != nil {
+			return nil, errors.Wrap(err, "error executing custom script")
+		}
+		return value.Export(), nil
 	}
 }
 

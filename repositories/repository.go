@@ -30,15 +30,18 @@ import (
 	"regexp"
 	"time"
 
-	"gopkg.in/yaml.v2"
 	"github.com/hashicorp/go-getter"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 )
 
 // Repository represents a template repository.
 type Repository struct {
 	directory string
-	ignore []*regexp.Regexp
+	ignore    []*regexp.Regexp
+
+	// Scripts defines the scripts for the repository.
+	Scripts map[string]string
 
 	// Variables defines the variables for the repository.
 	Variables []Variable
@@ -46,7 +49,7 @@ type Repository struct {
 
 // Close frees up all resources associated within the repository.
 func (r *Repository) Close() error {
-  	return os.RemoveAll(r.directory)
+	return os.RemoveAll(r.directory)
 }
 
 // Fetch returns a repository opened from a Git repository.
@@ -77,9 +80,8 @@ func Open(path string) (*Repository, error) {
 		return nil, errors.Wrapf(err, "error compiling ingore regular expressions")
 	}
 
-	return &Repository{directory: path, ignore: ignore, Variables: configuration.Variables}, nil
+	return &Repository{directory: path, ignore: ignore, Scripts: configuration.Scripts, Variables: configuration.Variables}, nil
 }
-
 
 // Walk invokes a callback for every file within the repository.
 func (r *Repository) Walk(callback func(*File) error) error {
