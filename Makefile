@@ -10,7 +10,7 @@ VERSION_FLAG := -X $(VERSIONS_PACKAGE).version=$(VERSION)
 .PHONY: build
 build: vendor
 	@echo "--> Building binary..."
-	@CGO_ENABLED=0 go build -o bin/pathogen -ldflags "$(VERSION_FLAG) $(COMMIT_FLAG)" --mod=vendor
+	@CGO_ENABLED=0 go build -o bin/pathogen -ldflags "$(VERSION_FLAG) $(COMMIT_FLAG)" --mod=vendor ./cmd/pathogen.go
 
 .PHONY: build.darwin
 build.darwin: vendor

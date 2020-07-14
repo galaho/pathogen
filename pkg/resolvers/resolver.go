@@ -18,25 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package version
+package resolvers
 
 import (
-	"fmt"
-
-	"github.com/galaho/pathogen/versions"
-	"github.com/spf13/cobra"
+	"github.com/galaho/pathogen/pkg/repositories"
 )
 
-// Command returns a command that prints the version.
-func Command() *cobra.Command {
+// Resolver provides an interface for resolving variables.
+type Resolver interface {
 
-	command := &cobra.Command{
-		Use:   "version",
-		Short: "Print the version and commit",
-		Run: func(command *cobra.Command, args []string) {
-			fmt.Printf("pathogen %s (%s)\n", versions.Version(), versions.Commit())
-		},
-	}
-
-	return command
+	// Resolve resolves variables.
+	Resolve([]repositories.Variable) (map[string]string, error)
 }

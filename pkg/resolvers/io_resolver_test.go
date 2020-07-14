@@ -24,7 +24,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/galaho/pathogen/repositories"
+	"github.com/galaho/pathogen/pkg/repositories"
 
 	. "github.com/smartystreets/goconvey/convey"
 )

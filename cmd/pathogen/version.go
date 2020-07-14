@@ -18,20 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package repositories
+package pathogen
 
-// Variable represents a variable for substitution in a template.
-type Variable struct {
+import (
+	"fmt"
 
-	// Name defines the name of the variable.
-	Name string `json:"name" mapstructure:"name" yaml:"name"`
+	"github.com/galaho/pathogen/internal/versions"
+	"github.com/spf13/cobra"
+)
 
-	// Description defines the description the variable.
-	Description string `json:"description" mapstructure:"description" yaml:"description"`
+// Version returns a command that prints the version.
+func Version() *cobra.Command {
 
-	// Value defines the value of the variable.
-	Value string `json:"value" mapstructure:"value" yaml:"value"`
+	command := &cobra.Command{
+		Use:   "version",
+		Short: "Print the version and commit",
+		Run: func(command *cobra.Command, args []string) {
+			fmt.Printf("pathogen %s (%s)\n", versions.Version(), versions.Commit())
+		},
+	}
 
-	// Pattern defines a regex pattern for valid values.
-	Pattern string `json:"pattern" mapstructure:"pattern" yaml:"pattern"`
+	return command
 }
