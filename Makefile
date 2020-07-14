@@ -15,17 +15,17 @@ build: vendor
 .PHONY: build.darwin
 build.darwin: vendor
 	@echo "--> Building binary..."
-	@CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bin/pathogen.darwin -ldflags "$(VERSION_FLAG) $(COMMIT_FLAG)" --mod=vendor
+	@CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bin/pathogen.darwin -ldflags "$(VERSION_FLAG) $(COMMIT_FLAG)" --mod=vendor ./cmd/pathogen.go
 
 .PHONY: build.linux
 build.linux: vendor
 	@echo "--> Building binary..."
-	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/pathogen.linux -ldflags "$(VERSION_FLAG) $(COMMIT_FLAG)" --mod=vendor
+	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/pathogen.linux -ldflags "$(VERSION_FLAG) $(COMMIT_FLAG)" --mod=vendor ./cmd/pathogen.go
 
 .PHONY: build.windows
 build.windows: vendor
 	@echo "--> Building binary..."
-	@CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/pathogen.windows -ldflags "$(VERSION_FLAG) $(COMMIT_FLAG)" --mod=vendor
+	@CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/pathogen.windows -ldflags "$(VERSION_FLAG) $(COMMIT_FLAG)" --mod=vendor ./cmd/pathogen.go
 
 .PHONY: test
 test: vendor
