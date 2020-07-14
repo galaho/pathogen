@@ -30,6 +30,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/galaho/pathogen/pkg/templates"
 	"github.com/hashicorp/go-getter"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -52,39 +53,69 @@ func (r *Repository) Close() error {
 	return os.RemoveAll(r.directory)
 }
 
-// Fetch returns a repository opened from a Git repository.
-func Fetch(url string) (*Repository, error) {
+// Open returns a repository ready for processing.
+func Open(repositoryURL string, configurationFile string) (*Repository, error) {
 
 	directory := filepath.Join(os.TempDir(), random())
 
-	err := getter.Get(directory, url)
+	err := getter.Get(directory, repositoryURL)
 	if err != nil {
-		return nil, errors.Wrapf(err, "error fetching repository [%s]", url)
+		return nil, errors.Wrapf(err, "error fetching repository [%s]", repositoryURL)
 	}
 
-	return Open(directory)
-}
-
-// Open returns a repository opened from the local file system.
-func Open(path string) (*Repository, error) {
-
-	file := filepath.Join(path, ".pathogen.yml")
-
-	configuration, err := load(file)
+	configuration, err := load(filepath.Join(directory, configurationFile))
 	if err != nil {
-		return nil, errors.Wrapf(err, "error loading configuration file [%s]", file)
+		return nil, errors.Wrapf(err, "error loading configuration file [%s]", configurationFile)
 	}
 
 	ignore, err := compile(configuration.Ignore)
 	if err != nil {
-		return nil, errors.Wrapf(err, "error compiling ingore regular expressions")
+		return nil, errors.Wrapf(err, "error compiling ignore regular expressions")
 	}
 
-	return &Repository{directory: path, ignore: ignore, Scripts: configuration.Scripts, Variables: configuration.Variables}, nil
+	repository := &Repository{
+		directory: directory,
+		ignore: ignore,
+		Scripts: configuration.Scripts,
+		Variables: configuration.Variables,
+	}
+
+	return repository, nil
 }
 
-// Walk invokes a callback for every file within the repository.
-func (r *Repository) Walk(callback func(*File) error) error {
+// Render renders the templates from this repository to disk.
+func (r *Repository) Render(destination string, context *templates.Context) error {
+
+	return r.walk(func(file *File) error {
+
+		path, err := templates.Render(file.Path, context)
+		if err != nil {
+			return errors.Wrapf(err, "error rendering template path [%s]", file.Path)
+		}
+
+		content, err := templates.Render(string(file.Bytes), context)
+		if err != nil {
+			return errors.Wrapf(err, "error rendering template file [%s]", file.Path)
+		}
+
+		directory := filepath.Dir(filepath.Join(destination, path))
+
+		err = os.MkdirAll(directory, 0777)
+		if err != nil {
+			return errors.Wrapf(err, "error creating directory [%s]", directory)
+		}
+
+		err = ioutil.WriteFile(filepath.Join(destination, path), []byte(content), file.Info.Mode())
+		if err != nil {
+			return errors.Wrapf(err, "error creating file [%s]", path)
+		}
+
+		return nil
+	})
+}
+
+// walk invokes a callback for every file within the repository.
+func (r *Repository) walk(callback func(*File) error) error {
 
 	evaluated, err := filepath.EvalSymlinks(r.directory)
 	if err != nil {

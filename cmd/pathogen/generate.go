@@ -18,29 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package generate
+package pathogen
 
 import (
-	"io/ioutil"
 	"os"
-	"path/filepath"
 
-	"github.com/galaho/pathogen/repositories"
-	"github.com/galaho/pathogen/resolvers"
-	"github.com/galaho/pathogen/templates"
+	"github.com/galaho/pathogen/pkg/repositories"
+	"github.com/galaho/pathogen/pkg/resolvers"
+	"github.com/galaho/pathogen/pkg/templates"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
 // Generate returns a command that generates filesystem entries from a template.
-func Command() *cobra.Command {
+func Generate() *cobra.Command {
 
 	command := &cobra.Command{
 		Use:   "generate REPOSITORY DESTINATION",
 		Short: "Generate filesystem entries from a template",
 		RunE: func(command *cobra.Command, args []string) error {
 
-			repository, err := repositories.Fetch(args[0])
+			repository, err := repositories.Open(args[0], ".pathogen.yml")
 			if err != nil {
 				return errors.Wrapf(err, "error fetching repository [%s]", args[0])
 			}
@@ -67,32 +65,7 @@ func Command() *cobra.Command {
 
 			context := &templates.Context{Scripts: repository.Scripts, Variables: variables}
 
-			err = repository.Walk(func(file *repositories.File) error {
-
-				path, err := templates.Render(file.Path, context)
-				if err != nil {
-					return errors.Wrapf(err, "error rendering template path [%s]", file.Path)
-				}
-
-				content, err := templates.Render(string(file.Bytes), context)
-				if err != nil {
-					return errors.Wrapf(err, "error rendering template file [%s]", file.Path)
-				}
-
-				directory := filepath.Dir(filepath.Join(args[1], path))
-
-				err = os.MkdirAll(directory, 0777)
-				if err != nil {
-					return errors.Wrapf(err, "error creating directory [%s]", directory)
-				}
-
-				err = ioutil.WriteFile(filepath.Join(args[1], path), []byte(content), file.Info.Mode())
-				if err != nil {
-					return errors.Wrapf(err, "error creating file [%s]", path)
-				}
-
-				return nil
-			})
+			err = repository.Render(args[1], context)
 
 			if err != nil {
 				return errors.Wrap(err, "error walking repository")

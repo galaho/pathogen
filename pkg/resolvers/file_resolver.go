@@ -25,7 +25,7 @@ import (
 	"io/ioutil"
 	"regexp"
 
-	"github.com/galaho/pathogen/repositories"
+	"github.com/galaho/pathogen/pkg/repositories"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )

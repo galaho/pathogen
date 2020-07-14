@@ -18,16 +18,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package cmd
+package main
 
 import (
-	"github.com/galaho/pathogen/cmd/generate"
-	"github.com/galaho/pathogen/cmd/version"
+	"os"
+
+	"github.com/galaho/pathogen/cmd/pathogen"
 	"github.com/spf13/cobra"
 )
 
-// Pathogen returns a command that generates filesystem entries from templates.
-func Pathogen() *cobra.Command {
+func main() {
 
 	command := &cobra.Command{
 		Use:   "pathogen",
@@ -35,8 +35,11 @@ func Pathogen() *cobra.Command {
 		Long:  "A command line utility for generating filesystem entries from templates.",
 	}
 
-	command.AddCommand(generate.Command())
-	command.AddCommand(version.Command())
+	command.AddCommand(pathogen.Generate())
+	command.AddCommand(pathogen.Version())
 
-	return command
+	err := command.Execute()
+	if err != nil {
+		os.Exit(1)
+	}
 }

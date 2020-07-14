@@ -18,15 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package resolvers
+package repositories
 
-import (
-	"github.com/galaho/pathogen/repositories"
-)
+// Variable represents a variable for substitution in a template.
+type Variable struct {
 
-// Resolver provides an interface for resolving variables.
-type Resolver interface {
+	// Name defines the name of the variable.
+	Name string `yaml:"name"`
 
-	// Resolve resolves variables.
-	Resolve([]repositories.Variable) (map[string]string, error)
+	// Description defines the description the variable.
+	Description string `yaml:"description"`
+
+	// Value defines the value of the variable.
+	Value string `yaml:"value"`
+
+	// Pattern defines a regex pattern for valid values.
+	Pattern string `yaml:"pattern"`
 }
