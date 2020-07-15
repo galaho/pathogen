@@ -18,31 +18,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package pathogen
+package commands
 
 import (
-	"github.com/galaho/pathogen/pkg/commands"
+	"os"
+
+	"github.com/galaho/pathogen/pkg/repositories"
+	"github.com/galaho/pathogen/pkg/resolvers"
+	"github.com/galaho/pathogen/pkg/templates"
 	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 )
 
-// Generate returns a command that generates filesystem entries from a template.
-func Generate() *cobra.Command {
+// Generate generates filesystem entries from a template.
+func Generate(input string, repo string, configFile string, dest string) error {
 
-	command := &cobra.Command{
-		Use:   "generate REPOSITORY DESTINATION",
-		Short: "Generate filesystem entries from a template",
-		Args:  cobra.MinimumNArgs(2),
-		RunE: func(command *cobra.Command, args []string) error {
-			input, err := command.Flags().GetString("input")
-			if err != nil {
-				return errors.Wrap(err, "error determining input file")
-			}
-			return commands.Generate(input, args[0], ".pathogen.yml", args[1])
-		},
+	repository, err := repositories.Open(repo, configFile)
+	if err != nil {
+		return errors.Wrapf(err, "error fetching repository [%s]", repo)
 	}
 
-	command.Flags().StringP("input", "i", "", "file for non-interactive variable resolution")
+	defer repository.Close()
 
-	return command
+	var resolver resolvers.Resolver
+
+	resolver = resolvers.NewIOResolver(os.Stdin, os.Stdout)
+
+	if input != "" {
+		resolver = resolvers.NewFileResolver(input)
+	}
+
+	variables, err := resolver.Resolve(repository.Variables)
+	if err != nil {
+		return errors.Wrap(err, "error resolving variables")
+	}
+
+	context := &templates.Context{Scripts: repository.Scripts, Variables: variables}
+
+	err = repository.Render(dest, context)
+
+	if err != nil {
+		return errors.Wrap(err, "error walking repository")
+	}
+
+	return nil
 }
