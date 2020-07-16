@@ -1,0 +1,18 @@
+name: Coverage
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  coverage:
+    name: Report Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: paambaati/codeclimate-action@v2.2.4
+        env:
+          CC_TEST_REPORTER_ID: ${{ secret.CC_TEST_REPORTER_ID }}
+        with:
+          coverageCommand: make test
