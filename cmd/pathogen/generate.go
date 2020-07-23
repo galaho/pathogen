@@ -38,7 +38,7 @@ func Generate() *cobra.Command {
 			if err != nil {
 				return errors.Wrap(err, "error determining input file")
 			}
-			return commands.Generate(input, args[0], ".pathogen.yml", args[1])
+			return commands.Generate(input, args[0], args[1], ".pathogen.yml")
 		},
 	}
 

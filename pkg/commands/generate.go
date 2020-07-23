@@ -30,7 +30,18 @@ import (
 )
 
 // Generate generates filesystem entries from a template.
-func Generate(input string, repo string, configFile string, dest string) error {
+func Generate(input string, repo string, destination string, configFile string) error {
+	var resolver resolvers.Resolver
+	resolver = resolvers.NewIOResolver(os.Stdin, os.Stdout)
+	if input != "" {
+		resolver = resolvers.NewFileResolver(input)
+	}
+
+	return GenerateWithResolver(resolver, repo, destination, configFile)
+}
+
+// GenerateWithResolver generates filesystem entries from a template and a resolver.
+func GenerateWithResolver(resolver resolvers.Resolver, repo string, destination string, configFile string) error {
 
 	repository, err := repositories.Open(repo, configFile)
 	if err != nil {
@@ -39,14 +50,6 @@ func Generate(input string, repo string, configFile string, dest string) error {
 
 	defer repository.Close()
 
-	var resolver resolvers.Resolver
-
-	resolver = resolvers.NewIOResolver(os.Stdin, os.Stdout)
-
-	if input != "" {
-		resolver = resolvers.NewFileResolver(input)
-	}
-
 	variables, err := resolver.Resolve(repository.Variables)
 	if err != nil {
 		return errors.Wrap(err, "error resolving variables")
@@ -54,7 +57,7 @@ func Generate(input string, repo string, configFile string, dest string) error {
 
 	context := &templates.Context{Scripts: repository.Scripts, Variables: variables}
 
-	err = repository.Render(dest, context)
+	err = repository.Render(destination, context)
 
 	if err != nil {
 		return errors.Wrap(err, "error walking repository")
