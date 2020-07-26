@@ -50,13 +50,10 @@ func Generate() *cobra.Command {
 				return errors.Wrap(err, "error determining input file")
 			}
 
-			var resolver resolvers.Resolver
-
-			resolver = resolvers.NewIOResolver(os.Stdin, os.Stdout)
-
-			if input != "" {
-				resolver = resolvers.NewFileResolver(input)
-			}
+			resolver := resolvers.NewDelegatingResolver(
+				resolvers.NewFileResolver(input),
+				resolvers.NewIOResolver(os.Stdin, os.Stdout),
+			)
 
 			variables, err := resolver.Resolve(repository.Variables)
 			if err != nil {
