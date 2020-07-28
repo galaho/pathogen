@@ -58,7 +58,7 @@ func Open(repositoryURL string, configurationFile string) (*Repository, error) {
 
 	directory := filepath.Join(os.TempDir(), random())
 
-	err := getter.Get(directory, repositoryURL)
+	err := getter.Get(directory, repositoryURL, pwd)
 	if err != nil {
 		return nil, errors.Wrapf(err, "error fetching repository [%s]", repositoryURL)
 	}
@@ -75,8 +75,8 @@ func Open(repositoryURL string, configurationFile string) (*Repository, error) {
 
 	repository := &Repository{
 		directory: directory,
-		ignore: ignore,
-		Scripts: configuration.Scripts,
+		ignore:    ignore,
+		Scripts:   configuration.Scripts,
 		Variables: configuration.Variables,
 	}
 
@@ -193,6 +193,17 @@ func matches(value string, regexes []*regexp.Regexp) bool {
 	}
 
 	return false
+}
+
+// pwd provides a getter.ClientOptions function that attempts to set the working directory.
+func pwd(client *getter.Client) error {
+
+	directory, err := os.Getwd()
+	if err == nil {
+		client.Pwd = directory
+	}
+
+	return nil
 }
 
 // random returns a random hexidecimal string.
