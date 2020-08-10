@@ -1,4 +1,4 @@
-VERSIONS_PACKAGE := github.com/galaho/pathogen/versions
+VERSIONS_PACKAGE := github.com/galaho/pathogen/internal/versions
 ROOT := $(shell git rev-parse --show-toplevel)
 
 COMMIT := $(shell git rev-parse --verify --short HEAD 2> /dev/null || echo "UNKNOWN")
