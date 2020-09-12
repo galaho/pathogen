@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package resolvers
+package prompting
 
 import (
 	"bufio"
@@ -30,22 +30,22 @@ import (
 	"github.com/pkg/errors"
 )
 
-// IOResolver implements a variable resolver that resolves using input from an io.Reader and outputs to an io.Writer.
-type IOResolver struct {
+// Resolver implements a variable resolver that resolves using input from an io.Reader and outputs to an io.Writer.
+type Resolver struct {
 	reader io.Reader
 	writer io.Writer
 }
 
-// NewIOResolver returns a new instance of an IOResolver.
-func NewIOResolver(reader io.Reader, writer io.Writer) *IOResolver {
-	return &IOResolver{
+// NewResolver returns a new instance of an Resolver.
+func NewResolver(reader io.Reader, writer io.Writer) *Resolver {
+	return &Resolver{
 		reader: reader,
 		writer: writer,
 	}
 }
 
 // Resolve resolves variables.
-func (r *IOResolver) Resolve(variables []repositories.Variable) (map[string]string, error) {
+func (r *Resolver) Resolve(variables []repositories.Variable) (map[string]string, error) {
 
 	scanner := bufio.NewScanner(r.reader)
 	resolved := make(map[string]string)

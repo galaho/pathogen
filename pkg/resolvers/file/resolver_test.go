@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package resolvers
+package file
 
 import (
 	"testing"
@@ -29,9 +29,9 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestFileResolver(t *testing.T) {
+func TestResolver(t *testing.T) {
 
-	Convey("When FileResolver", t, func() {
+	Convey("When Resolver", t, func() {
 
 		Convey(".Resolve is invoked", func() {
 
@@ -55,7 +55,7 @@ func TestFileResolver(t *testing.T) {
 
 			Convey("with an invalid file", func() {
 
-				resolver := NewFileResolver(tests.MustGenerateHex(t))
+				resolver := NewResolver(tests.MustGenerateHex(t))
 				actual, err := resolver.Resolve(variables)
 
 				Convey("it returns a nil variable map", func() {
@@ -69,7 +69,7 @@ func TestFileResolver(t *testing.T) {
 
 			Convey("with an improperly formatted file", func() {
 
-				resolver := NewFileResolver("testdata/invalid.yaml")
+				resolver := NewResolver("testdata/invalid.yaml")
 				actual, err := resolver.Resolve(variables)
 
 				Convey("it returns a nil variable map", func() {
@@ -83,7 +83,7 @@ func TestFileResolver(t *testing.T) {
 
 			Convey("with a properly formatted file", func() {
 
-				resolver := NewFileResolver("testdata/valid.yaml")
+				resolver := NewResolver("testdata/valid.yaml")
 
 				Convey("and an empty variable slice", func() {
 
