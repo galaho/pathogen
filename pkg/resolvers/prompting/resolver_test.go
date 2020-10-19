@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package resolvers
+package prompting
 
 import (
 	"strings"
@@ -29,9 +29,9 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestIOResolver(t *testing.T) {
+func TestResolver(t *testing.T) {
 
-	Convey("When IOResolver", t, func() {
+	Convey("When Resolver", t, func() {
 
 		Convey(".Resolve is invoked", func() {
 
@@ -39,7 +39,7 @@ func TestIOResolver(t *testing.T) {
 
 				reader := strings.NewReader("orange\n")
 				writer := &strings.Builder{}
-				resolver := NewIOResolver(reader, writer)
+				resolver := NewResolver(reader, writer)
 
 				variables := []repositories.Variable{}
 				expected := map[string]string{}
@@ -58,7 +58,7 @@ func TestIOResolver(t *testing.T) {
 
 				reader := strings.NewReader("Sir Galahad\nTo seek the Holy Grail\nBlue\n")
 				writer := &strings.Builder{}
-				resolver := NewIOResolver(reader, writer)
+				resolver := NewResolver(reader, writer)
 
 				variables := []repositories.Variable{
 					repositories.Variable{

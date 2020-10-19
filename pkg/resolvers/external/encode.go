@@ -18,42 +18,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package pathogen
+package external
 
 import (
-	"os"
+	"encoding/json"
+	"io"
 
-	"github.com/galaho/pathogen/pkg/generation"
-	"github.com/galaho/pathogen/pkg/resolvers/delegating"
-	"github.com/galaho/pathogen/pkg/resolvers/file"
-	"github.com/galaho/pathogen/pkg/resolvers/prompting"
+	"github.com/galaho/pathogen/pkg/repositories"
 	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v2"
 )
 
-// Generate returns a command that generates filesystem entries from a template.
-func Generate() *cobra.Command {
+// Encode provides a function interface for encoding variable slices to an io.Writer.
+type Encode func([]repositories.Variable, io.Writer) error
 
-	command := &cobra.Command{
-		Use:   "generate REPOSITORY DESTINATION",
-		Short: "Generate filesystem entries from a template",
-		RunE: func(command *cobra.Command, args []string) error {
+// EncodeJSON implements an Encode function for encoding variables to JSON.
+func EncodeJSON(variables []repositories.Variable, writer io.Writer) error {
 
-			input, err := command.Flags().GetString("input")
-			if err != nil {
-				return errors.Wrap(err, "error determining input file")
-			}
-
-			resolver := delegating.NewResolver(
-				file.NewResolver(input),
-				prompting.NewResolver(os.Stdin, os.Stdout),
-			)
-
-			return generation.Generate(args[0], args[1], ".pathogen.yml", resolver)
-		},
+	err := json.NewEncoder(writer).Encode(variables)
+	if err != nil {
+		return errors.Wrap(err, "error encoding variables")
 	}
 
-	command.Flags().StringP("input", "i", "", "file for non-interactive variable resolution")
+	return nil
+}
 
-	return command
+// EncodeYAML implements an Encode function for encoding variables to YAML.
+func EncodeYAML(variables []repositories.Variable, writer io.Writer) error {
+
+	err := yaml.NewEncoder(writer).Encode(variables)
+	if err != nil {
+		return errors.Wrap(err, "error encoding variables")
+	}
+
+	return nil
 }

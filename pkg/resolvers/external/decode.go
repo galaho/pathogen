@@ -18,42 +18,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package pathogen
+package external
 
 import (
-	"os"
+	"encoding/json"
+	"io"
 
-	"github.com/galaho/pathogen/pkg/generation"
-	"github.com/galaho/pathogen/pkg/resolvers/delegating"
-	"github.com/galaho/pathogen/pkg/resolvers/file"
-	"github.com/galaho/pathogen/pkg/resolvers/prompting"
 	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v2"
 )
 
-// Generate returns a command that generates filesystem entries from a template.
-func Generate() *cobra.Command {
+// Decode provides a function interface for decoding variable maps from an io.Reader.
+type Decode func(io.Reader) (map[string]string, error)
 
-	command := &cobra.Command{
-		Use:   "generate REPOSITORY DESTINATION",
-		Short: "Generate filesystem entries from a template",
-		RunE: func(command *cobra.Command, args []string) error {
+// DecodeJSON implements a Decode function for decoding values from JSON.
+func DecodeJSON(reader io.Reader) (map[string]string, error) {
 
-			input, err := command.Flags().GetString("input")
-			if err != nil {
-				return errors.Wrap(err, "error determining input file")
-			}
+	var values map[string]string
 
-			resolver := delegating.NewResolver(
-				file.NewResolver(input),
-				prompting.NewResolver(os.Stdin, os.Stdout),
-			)
-
-			return generation.Generate(args[0], args[1], ".pathogen.yml", resolver)
-		},
+	err := json.NewDecoder(reader).Decode(&values)
+	if err != nil {
+		return nil, errors.Wrap(err, "error decoding variables")
 	}
 
-	command.Flags().StringP("input", "i", "", "file for non-interactive variable resolution")
+	return values, nil
+}
 
-	return command
+// DecodeYAML implements a Decode function for decoding values from YAML.
+func DecodeYAML(reader io.ReadCloser) (map[string]string, error) {
+
+	var values map[string]string
+
+	err := yaml.NewDecoder(reader).Decode(&values)
+	if err != nil {
+		return nil, errors.Wrap(err, "error decoding variables")
+	}
+
+	return values, nil
 }

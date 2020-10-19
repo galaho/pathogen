@@ -18,42 +18,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package pathogen
+package delegating
 
 import (
-	"os"
-
-	"github.com/galaho/pathogen/pkg/generation"
-	"github.com/galaho/pathogen/pkg/resolvers/delegating"
-	"github.com/galaho/pathogen/pkg/resolvers/file"
-	"github.com/galaho/pathogen/pkg/resolvers/prompting"
+	"github.com/galaho/pathogen/pkg/repositories"
+	"github.com/galaho/pathogen/pkg/resolvers"
 	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 )
 
-// Generate returns a command that generates filesystem entries from a template.
-func Generate() *cobra.Command {
+// Resolver implements a variable resolver that delegates variable resolution to one or more resolvers. The variables
+// returned by the first non-erroring resolver are returned.
+type Resolver struct {
+	resolvers []resolvers.Resolver
+}
 
-	command := &cobra.Command{
-		Use:   "generate REPOSITORY DESTINATION",
-		Short: "Generate filesystem entries from a template",
-		RunE: func(command *cobra.Command, args []string) error {
-
-			input, err := command.Flags().GetString("input")
-			if err != nil {
-				return errors.Wrap(err, "error determining input file")
-			}
-
-			resolver := delegating.NewResolver(
-				file.NewResolver(input),
-				prompting.NewResolver(os.Stdin, os.Stdout),
-			)
-
-			return generation.Generate(args[0], args[1], ".pathogen.yml", resolver)
-		},
+// NewResolver returns a new instance of an Resovler.
+func NewResolver(resolver ...resolvers.Resolver) *Resolver {
+	return &Resolver{
+		resolvers: resolver[:],
 	}
+}
 
-	command.Flags().StringP("input", "i", "", "file for non-interactive variable resolution")
-
-	return command
+// Resolve resolves variables.
+func (r *Resolver) Resolve(variables []repositories.Variable) (map[string]string, error) {
+	for index := range r.resolvers {
+		variables, err := r.resolvers[index].Resolve(variables)
+		if err == nil {
+			return variables, nil
+		}
+	}
+	return nil, errors.New("unable to resolve variables with all resolvers")
 }

@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package resolvers
+package delegating
 
 import (
 	"errors"
@@ -34,7 +34,7 @@ import (
 // mockResolver implements a mock variable resolver for tests.
 type mockResolver struct {
 	variables map[string]string
-	err error
+	err       error
 }
 
 // Resolve resolves variables.
@@ -42,7 +42,7 @@ func (r *mockResolver) Resolve(_ []repositories.Variable) (map[string]string, er
 	return r.variables, r.err
 }
 
-func TestDelegatingResolver(t *testing.T) {
+func TestResolver(t *testing.T) {
 
 	Convey("When DelegatingResolver", t, func() {
 
@@ -52,7 +52,7 @@ func TestDelegatingResolver(t *testing.T) {
 
 			Convey("and all resolvers error", func() {
 
-				resolver := NewDelegatingResolver(
+				resolver := NewResolver(
 					&mockResolver{variables: variables, err: errors.New(tests.MustGenerateHex(t))},
 					&mockResolver{variables: variables, err: errors.New(tests.MustGenerateHex(t))},
 					&mockResolver{variables: variables, err: errors.New(tests.MustGenerateHex(t))},
@@ -71,7 +71,7 @@ func TestDelegatingResolver(t *testing.T) {
 
 			Convey("and no resolvers error", func() {
 
-				resolver := NewDelegatingResolver(
+				resolver := NewResolver(
 					&mockResolver{variables: variables, err: nil},
 					&mockResolver{variables: tests.MustGenerate(reflect.TypeOf(map[string]string{}), t).Interface().(map[string]string), err: nil},
 					&mockResolver{variables: tests.MustGenerate(reflect.TypeOf(map[string]string{}), t).Interface().(map[string]string), err: nil},

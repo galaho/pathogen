@@ -18,68 +18,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package resolvers
+package external
 
 import (
-	"fmt"
-	"io/ioutil"
-	"regexp"
+	"io"
 
 	"github.com/galaho/pathogen/pkg/repositories"
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
 )
 
-// FileResolver implements a variable resolver that resolves using a yaml file containg key and value pairs.
-type FileResolver struct {
-	path string
+// Resolver implements a variable resolver that resolves using an external mechanism. The resolver works by encoding
+// the variables requiring resolution and writing those to an io.Writer then reading and decoding the resolved
+// variables from an io.Reader.
+type Resolver struct {
+	decode Decode
+	encode Encode
+	reader io.Reader
+	writer io.Writer
 }
 
-// NewFileResolver returns a new instance of a FileResolver.
-func NewFileResolver(path string) *FileResolver {
-	return &FileResolver{
-		path: path,
+// NewResolver returns a new instance of an Resolver.
+func NewResolver(decode Decode, encode Encode, reader io.Reader, writer io.Writer) *Resolver {
+	return &Resolver{
+		decode: decode,
+		encode: encode,
+		reader: reader,
+		writer: writer,
 	}
 }
 
 // Resolve resolves variables.
-func (r *FileResolver) Resolve(variables []repositories.Variable) (map[string]string, error) {
+func (r *Resolver) Resolve(variables []repositories.Variable) (map[string]string, error) {
 
-	var unmarshalled map[string]string
-
-	bytes, err := ioutil.ReadFile(r.path)
+	err := r.encode(variables, r.writer)
 	if err != nil {
-		return nil, errors.Wrap(err, "error reading variable file")
+		return nil, errors.Wrap(err, "error encoding variables")
 	}
 
-	err = yaml.Unmarshal(bytes, &unmarshalled)
+	values, err := r.decode(r.reader)
 	if err != nil {
-		return nil, errors.Wrap(err, "error unmarshalling variable file")
+		return nil, errors.Wrap(err, "error decoding variables")
 	}
 
-	resolved := make(map[string]string)
-
-	for _, variable := range variables {
-
-		value, exists := unmarshalled[variable.Name]
-		if !exists {
-			value = variable.Value
-		}
-
-		if variable.Pattern != "" {
-
-			match, err := regexp.MatchString(variable.Pattern, value)
-			if err != nil {
-				return nil, errors.Wrap(err, "error compiling variable pattern")
-			}
-
-			if !match {
-				return nil, fmt.Errorf("value [%s] does not match pattern [%s]", value, variable.Pattern)
-			}
-		}
-
-		resolved[variable.Name] = value
-	}
-
-	return resolved, nil
+	return values, nil
 }

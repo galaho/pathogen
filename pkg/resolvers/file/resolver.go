@@ -18,33 +18,68 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package resolvers
+package file
 
 import (
+	"fmt"
+	"io/ioutil"
+	"regexp"
+
 	"github.com/galaho/pathogen/pkg/repositories"
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 )
 
-// DelegatingResolver implements a variable resolver that delegates variable resolution to one or more resolvers. The
-// variables returned by the first non-erroring resolver are returned.
-type DelegatingResolver struct {
-	resolvers []Resolver
+// Resolver implements a variable resolver that resolves using a yaml file containg key and value pairs.
+type Resolver struct {
+	path string
 }
 
-// NewDelegatingResolver returns a new instance of an DelegatingResovler.
-func NewDelegatingResolver(resolver ...Resolver) *DelegatingResolver {
-	return &DelegatingResolver{
-		resolvers: resolver[:],
+// NewResolver returns a new instance of a Resolver.
+func NewResolver(path string) *Resolver {
+	return &Resolver{
+		path: path,
 	}
 }
 
 // Resolve resolves variables.
-func (r *DelegatingResolver) Resolve(variables []repositories.Variable) (map[string]string, error) {
-	for index := range r.resolvers {
-		variables, err := r.resolvers[index].Resolve(variables)
-		if err == nil {
-			return variables, nil
-		}
+func (r *Resolver) Resolve(variables []repositories.Variable) (map[string]string, error) {
+
+	var unmarshalled map[string]string
+
+	bytes, err := ioutil.ReadFile(r.path)
+	if err != nil {
+		return nil, errors.Wrap(err, "error reading variable file")
 	}
-	return nil, errors.New("unable to resolve variables with all resolvers")
+
+	err = yaml.Unmarshal(bytes, &unmarshalled)
+	if err != nil {
+		return nil, errors.Wrap(err, "error unmarshalling variable file")
+	}
+
+	resolved := make(map[string]string)
+
+	for _, variable := range variables {
+
+		value, exists := unmarshalled[variable.Name]
+		if !exists {
+			value = variable.Value
+		}
+
+		if variable.Pattern != "" {
+
+			match, err := regexp.MatchString(variable.Pattern, value)
+			if err != nil {
+				return nil, errors.Wrap(err, "error compiling variable pattern")
+			}
+
+			if !match {
+				return nil, fmt.Errorf("value [%s] does not match pattern [%s]", value, variable.Pattern)
+			}
+		}
+
+		resolved[variable.Name] = value
+	}
+
+	return resolved, nil
 }
