@@ -1,7 +1,6 @@
 # pathogen
 
-[![CircleCI](https://circleci.com/gh/galaho/pathogen.svg?style=svg)](https://circleci.com/gh/galaho/pathogen)
-[![Maintainability](https://api.codeclimate.com/v1/badges/621a7c0274b08fa43412/maintainability)](https://codeclimate.com/github/galaho/pathogen/maintainability)
+[![Build Status](https://github.com/galaho/pathogen/workflows/test/badge.svg)](https://github.com/galaho/pathogen/actions)
 [![Coverage](https://codecov.io/gh/galaho/pathogen/branch/master/graph/badge.svg)](https://codecov.io/gh/galaho/pathogen)
 
 Pathogen provides a generic templated filesystem entry generator. While written in Go and using Go template syntax, pathogen is completely agnostic with regard to the type and format of the generated filesystem entries.
