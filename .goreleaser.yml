@@ -11,9 +11,7 @@ builds:
       - windows
     goarch:
       - amd64
-archives:
-  - replacements:
-      amd64: x86_64
+    main: ./cmd/pathogen.go
 checksum:
   name_template: 'checksums.txt'
 changelog:
